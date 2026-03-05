@@ -1,152 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Shield</title>
-
-<style>
-body{
-font-family:Arial;
-background:#0a0a0a;
-color:white;
-margin:0;
-display:flex;
-flex-direction:column;
-height:100vh;
-}
-
-header{
-padding:20px;
-background:#111;
-border-bottom:1px solid #222;
-}
-
-#chat{
-flex:1;
-overflow:auto;
-padding:20px;
-}
-
-.msg{
-padding:12px;
-border-radius:10px;
-margin-bottom:10px;
-max-width:70%;
-}
-
-.user{
-background:#2563eb;
-align-self:flex-end;
-}
-
-.ai{
-background:#222;
-}
-
-#inputArea{
-display:flex;
-padding:20px;
-gap:10px;
-background:#111;
-}
-
-input{
-flex:1;
-padding:12px;
-background:#222;
-border:none;
-color:white;
-border-radius:8px;
-}
-
-button{
-background:#2563eb;
-border:none;
-color:white;
-padding:12px 20px;
-border-radius:8px;
-cursor:pointer;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Shield | Secure Gateway</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: white; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        header { padding: 15px 25px; background: #111; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .msg { padding: 14px 18px; border-radius: 12px; max-width: 75%; line-height: 1.5; font-size: 0.95rem; }
+        .user { background: #2563eb; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .ai { background: #1e1e1e; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #333; }
+        .redacted-alert { color: #10b981; font-size: 0.75rem; margin-top: 5px; font-weight: bold; }
+        #inputArea { display: flex; padding: 20px; gap: 12px; background: #111; border-top: 1px solid #222; }
+        input { flex: 1; padding: 14px; background: #1e1e1e; border: 1px solid #333; color: white; border-radius: 10px; outline: none; }
+        input:focus { border-color: #2563eb; }
+        button { background: #2563eb; border: none; color: white; padding: 0 25px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #1d4ed8; }
+        /* Setup Overlay */
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .card { background: #111; padding: 30px; border-radius: 15px; border: 1px solid #333; text-align: center; width: 350px; }
+    </style>
 </head>
-
 <body>
 
+<div id="overlay">
+    <div class="card">
+        <h3>🔐 Secure Access</h3>
+        <p style="color: #888; font-size: 0.8rem;">Enter your Gemini API Key to start</p>
+        <input type="password" id="apiKey" placeholder="AI_KEY_HERE" style="width: 80%; margin-bottom: 15px; display: block; margin-inline: auto;">
+        <button onclick="start()" style="width: 90%; padding: 12px;">Activate Shield</button>
+    </div>
+</div>
+
 <header>
-<h2>🛡 AI Shield Gateway</h2>
+    <h2 style="margin:0; font-size: 1.2rem;">🛡️ AI Shield Gateway</h2>
+    <div id="status" style="color: #10b981; font-size: 0.7rem;">● PROTECTED MODE</div>
 </header>
 
-<div id="chat"></div>
+<div id="chat">
+    <div class="msg ai">Welcome. I am the AI Privacy Shield. Any sensitive data you type will be scrubbed before being sent to the AI model.</div>
+</div>
 
 <div id="inputArea">
-<input id="prompt" placeholder="Type message..." />
-<button onclick="send()">Send</button>
+    <input id="prompt" placeholder="Type your message..." onkeypress="if(event.key==='Enter') send()" />
+    <button onclick="send()">Send</button>
 </div>
 
 <script>
+let KEY = "";
 
-function scrub(text){
-
-const email=/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/g
-const phone=/\+?\d{10,15}/g
-
-let clean=text
-
-clean=clean.replace(email,"[REDACTED_EMAIL]")
-clean=clean.replace(phone,"[REDACTED_PHONE]")
-
-return clean
+function start() {
+    const val = document.getElementById("apiKey").value;
+    if(val) { KEY = val; document.getElementById("overlay").style.display = "none"; }
 }
 
-function addMsg(text,type){
+function scrub(text) {
+    const email = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/g;
+    const phone = /\+?\d{10,15}/g;
+    let clean = text;
+    let hit = false;
 
-const div=document.createElement("div")
-div.className="msg "+type
-div.innerText=text
+    if(email.test(clean)) { clean = clean.replace(email, "[REDACTED_EMAIL]"); hit = true; }
+    if(phone.test(clean)) { clean = clean.replace(phone, "[REDACTED_PHONE]"); hit = true; }
 
-document.getElementById("chat").appendChild(div)
+    return { clean, hit };
 }
 
-async function send(){
-
-const input=document.getElementById("prompt")
-
-const text=input.value
-
-if(!text) return
-
-addMsg(text,"user")
-
-const clean=scrub(text)
-
-input.value=""
-
-try{
-
-const res=await fetch("/api/chat",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-prompt:clean
-})
-})
-
-const data=await res.json()
-
-addMsg(data.reply,"ai")
-
-}catch(e){
-
-addMsg("Server error","ai")
-
+function addMsg(text, type, isRedacted = false) {
+    const chat = document.getElementById("chat");
+    const div = document.createElement("div");
+    div.className = "msg " + type;
+    div.innerText = text;
+    if(isRedacted) {
+        const span = document.createElement("div");
+        span.className = "redacted-alert";
+        span.innerText = "🛡️ Privacy Filter Applied";
+        div.appendChild(span);
+    }
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
 }
 
-}
+async function send() {
+    const input = document.getElementById("prompt");
+    const text = input.value.trim();
+    if(!text || !KEY) return;
 
+    addMsg(text, "user");
+    const { clean, hit } = scrub(text);
+    input.value = "";
+
+    try {
+        // الاتصال المباشر بـ Gemini بدون مسارات API داخلية
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: clean }] }]
+            })
+        });
+
+        const data = await res.json();
+        const reply = data.candidates[0].content.parts[0].text;
+        addMsg(reply, "ai", hit);
+
+    } catch(e) {
+        addMsg("Connection Error: Please check your API key and internet.", "ai");
+    }
+}
 </script>
-
 </body>
 </html>
