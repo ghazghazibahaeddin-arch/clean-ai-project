@@ -1,243 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Control Panel | Governance Layer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #000;
-            --accent: #007bff;
-            --bg: #f8f9fa;
-            --glass: rgba(255, 255, 255, 0.9);
-        }
+async function sendMessage() {
+    const input = document.getElementById('user-input');
+    const status = document.getElementById('status');
+    const prompt = input.value;
+    if(!prompt) return;
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            color: #333;
-        }
+    status.innerText = "⏳ Processing Securely...";
 
-        /* Sidebar Stats Panel */
-        .sidebar {
-            width: 300px;
-            background: var(--primary);
-            color: white;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-        }
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: prompt })
+        });
 
-        .sidebar h2 { font-size: 1.2rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
+        const data = await response.json();
         
-        .stat-card {
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 12px;
-            border-left: 4px solid var(--accent);
+        if (response.ok) {
+            addMessageToChat('AI', data.reply);
+            status.innerText = "✅ Secure Connection Active";
+        } else {
+            status.innerText = "❌ Error: " + (data.error || "Server Issue");
         }
-
-        .stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; }
-        .stat-value { font-size: 1.1rem; font-weight: 600; margin-top: 5px; color: #fff; }
-        .shield-active { color: #28a745 !important; }
-
-        /* Main Chat Area */
-        .main-content {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .chat-container {
-            width: 100%;
-            max-width: 600px;
-            height: 90vh;
-            background: white;
-            border-radius: 24px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-
-        #chat-box {
-            flex: 1;
-            padding: 25px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background: #fff;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 14px 18px;
-            border-radius: 18px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
-        .ai { align-self: flex-start; background: #f0f0f5; color: #1a1a1a; border-bottom-left-radius: 4px; }
-
-        .input-area {
-            padding: 20px;
-            display: flex;
-            gap: 12px;
-            border-top: 1px solid #eee;
-        }
-
-        input {
-            flex: 1;
-            padding: 14px 20px;
-            border: 1px solid #eee;
-            border-radius: 30px;
-            outline: none;
-            background: #f9f9f9;
-        }
-
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0 25px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        button:disabled { opacity: 0.5; }
-
-        .badge {
-            font-size: 0.7rem;
-            padding: 3px 8px;
-            background: #333;
-            border-radius: 10px;
-            margin-left: 10px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="sidebar">
-    <h2>AI Governance Panel</h2>
-    
-    <div class="stat-card">
-        <div class="stat-label">Estimated Session Cost</div>
-        <div id="stat-cost" class="stat-value">$0.00000</div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-label">Model Latency</div>
-        <div id="stat-latency" class="stat-value">0ms</div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-label">Token Usage (I/O)</div>
-        <div id="stat-tokens" class="stat-value">0 / 0</div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-label">Privacy Shield</div>
-        <div id="stat-shield" class="stat-value">Standby</div>
-    </div>
-
-    <div style="margin-top: auto; font-size: 0.7rem; color: #555;">
-        Enterprise AI Gateway v1.0 <br> Secure Node Active
-    </div>
-</div>
-
-<div class="main-content">
-    <div class="chat-container">
-        <div id="chat-box">
-            <div class="message ai">Secure Connection Established. AI Gateway is monitoring this session.</div>
-        </div>
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Enter prompt (Try typing an email for masking test)..." autocomplete="off">
-            <button id="send-btn">Execute</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    const chatBox = document.getElementById('chat-box');
-    const userInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
-
-    // UI Stats elements
-    const costEl = document.getElementById('stat-cost');
-    const latencyEl = document.getElementById('stat-latency');
-    const tokensEl = document.getElementById('stat-tokens');
-    const shieldEl = document.getElementById('stat-shield');
-
-    function appendMessage(role, text) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${role}`;
-        msgDiv.innerText = text;
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
+    } catch (e) {
+        status.innerText = "❌ Fatal: API Connection Lost.";
     }
-
-    async function sendMessage() {
-        const text = userInput.value.trim();
-        if (!text) return;
-
-        appendMessage('user', text);
-        userInput.value = '';
-        sendBtn.disabled = true;
-
-        try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: text })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Display the AI reply
-                appendMessage('ai', data.reply);
-                
-                // Update Governance Stats in the sidebar
-                const logs = data.governance_log;
-                costEl.innerText = logs.estimated_cost;
-                latencyEl.innerText = logs.latency;
-                tokensEl.innerText = `${logs.input_tokens} / ${logs.output_tokens}`;
-                
-                if (logs.privacy_shield_active) {
-                    shieldEl.innerText = "ACTIVE (Masked)";
-                    shieldEl.classList.add("shield-active");
-                } else {
-                    shieldEl.innerText = "Monitoring...";
-                    shieldEl.classList.remove("shield-active");
-                }
-
-            } else {
-                appendMessage('ai', "❌ System Error: " + data.error);
-            }
-        } catch (error) {
-            appendMessage('ai', "❌ Fatal: API Connection Lost.");
-        } finally {
-            sendBtn.disabled = false;
-        }
-    }
-
-    sendBtn.addEventListener('click', sendMessage);
-    userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-</script>
-
-</body>
-</html>
+}
