@@ -3,127 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI SHIELD | Enterprise Privacy Gateway</title>
+    <title>AI SHIELD PRO | Enterprise Privacy</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --card: #0c0c0c; --primary: #0070f3; --accent: #00dfd8; --text: #ffffff; --border: #1a1a1a; --danger: #ff3333; }
-        * { box-sizing: border-box; transition: all 0.2s; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { margin: 0; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-        
-        .sidebar { width: 280px; background: var(--card); border-right: 1px solid var(--border); padding: 40px 24px; display: flex; flex-direction: column; gap: 20px; }
-        .logo { font-weight: 800; font-size: 1.6rem; color: var(--accent); margin-bottom: 20px; }
-        .nav-item { color: #666; text-decoration: none; padding: 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
-        .nav-item.active { background: #151515; color: white; border: 1px solid var(--border); }
-
-        .main { flex: 1; padding: 40px; display: flex; flex-direction: column; gap: 25px; }
-        .chat-engine { flex: 1; background: #080808; border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        #chatDisplay { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        
-        .bubble { max-width: 85%; padding: 14px 20px; border-radius: 16px; font-size: 0.95rem; line-height: 1.6; }
-        .bubble.user { background: var(--primary); align-self: flex-end; color: white; }
-        .bubble.ai { background: #161616; border: 1px solid var(--border); align-self: flex-start; }
-        .bubble.shield-log { background: rgba(0, 223, 216, 0.05); border: 1px dashed var(--accent); color: var(--accent); align-self: center; font-size: 0.8rem; width: 100%; text-align: center; }
-
-        .input-area { padding: 20px; background: #0c0c0c; border-top: 1px solid var(--border); display: flex; gap: 12px; }
-        input { flex: 1; background: #151515; border: 1px solid var(--border); border-radius: 12px; color: white; padding: 16px; outline: none; }
-        .btn-send { background: var(--primary); color: white; border: none; padding: 0 30px; border-radius: 12px; cursor: pointer; font-weight: 700; }
-        .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        #toast { position: fixed; top: 20px; right: 20px; background: var(--danger); color: white; padding: 15px 25px; border-radius: 10px; display: none; z-index: 1000; font-weight: bold; }
+        :root { --bg: #050505; --card: #0c0c0c; --primary: #0070f3; --accent: #00dfd8; --text: #ffffff; --border: #1a1a1a; }
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); display: flex; height: 100vh; }
+        .sidebar { width: 260px; background: var(--card); border-right: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; gap: 20px; }
+        .main { flex: 1; padding: 40px; display: flex; flex-direction: column; gap: 20px; }
+        .chat-box { flex: 1; background: #080808; border: 1px solid var(--border); border-radius: 20px; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 12px 16px; border-radius: 12px; max-width: 80%; font-size: 0.9rem; }
+        .user { background: var(--primary); align-self: flex-end; }
+        .ai { background: #161616; border: 1px solid var(--border); align-self: flex-start; }
+        .shield-msg { background: rgba(0, 223, 216, 0.1); color: var(--accent); align-self: center; font-size: 0.75rem; border: 1px dashed var(--accent); width: 100%; text-align: center; }
+        .input-area { display: flex; gap: 10px; padding: 20px 0; }
+        input { flex: 1; background: #151515; border: 1px solid var(--border); border-radius: 10px; color: white; padding: 15px; outline: none; }
+        button { background: var(--primary); color: white; border: none; padding: 0 25px; border-radius: 10px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-
-    <div id="toast">🚨 PRIVACY VIOLATION BLOCKED & SCRUBBED</div>
-
     <div class="sidebar">
-        <div class="logo">🛡️ AI SHIELD</div>
-        <div class="nav-item active">📊 Dashboard</div>
-        <div class="nav-item" onclick="window.location.href='https://radhiayt.gumroad.com/l/ofuefu'">🔐 Security Logs</div>
-        <a href="https://radhiayt.gumroad.com/l/ofuefu" class="nav-item" style="color:var(--accent); border: 1px dashed var(--accent); margin-top:10px;">💎 Upgrade to PRO</a>
+        <div style="font-weight: 800; color: var(--accent); font-size: 1.2rem;">🛡️ AI SHIELD</div>
+        <div style="margin-top: 20px; color: #444; font-size: 0.8rem;">SECURE GATEWAY v1.0</div>
+        <button onclick="window.location.href='https://radhiayt.gumroad.com/l/ofuefu'" style="margin-top: auto; padding: 10px; font-size: 0.8rem;">💎 Upgrade to PRO</button>
     </div>
-
     <div class="main">
-        <header style="display: flex; justify-content: space-between; align-items: center;">
-            <h1 style="margin:0; font-size: 1.8rem; font-weight: 800;">Privacy Gateway</h1>
-            <div style="color: var(--accent); font-size: 0.8rem; font-weight: bold; border: 1px solid; padding: 5px 10px; border-radius: 20px;">● SECURE NODE ACTIVE</div>
-        </header>
-
-        <div class="chat-engine">
-            <div id="chatDisplay">
-                <div class="bubble ai">System Online. Enter your prompt. I will scrub all PII (Emails, Phones, Names) locally before sending it to the AI for analysis.</div>
-            </div>
-            <div class="input-area">
-                <input type="text" id="userInput" placeholder="Ask anything... e.g., Rewrite this email for john@company.com">
-                <button class="btn-send" id="sendBtn" onclick="processQuery()">SHIELD & SEND</button>
-            </div>
+        <div class="chat-box" id="chat">
+            <div class="msg ai">نظام حماية البيانات نشط. سأقوم بحذف أي معلومات حساسة قبل معالجتها. كيف يمكنني مساعدتك؟</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="اكتب سؤالك هنا (مثلاً: اكتب إيميل لـ john@company.com)...">
+            <button onclick="process()">إرسال آمن</button>
         </div>
     </div>
 
     <script>
-        // ضع مفتاحك هنا - ضعه بين علامتي التنصيص
-        const GEMINI_API_KEY = "ضعه_هنا"; 
+        // ضع مفتاح API الخاص بك من Google AI Studio هنا
+        const API_KEY = "ضعه_هنا"; 
 
-        function showToast() {
-            const t = document.getElementById('toast');
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 3000);
-        }
-
-        function scrubData(text) {
-            let clean = text;
-            let detected = false;
-            
+        function scrub(text) {
             const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-            const phoneRegex = /\+?\d{10,15}/g;
-
-            if(emailRegex.test(clean)) { clean = clean.replace(emailRegex, "[REDACTED_EMAIL]"); detected = true; }
-            if(phoneRegex.test(clean)) { clean = clean.replace(phoneRegex, "[REDACTED_PHONE]"); detected = true; }
-
-            if(detected) showToast();
-            return clean;
+            if(emailRegex.test(text)) {
+                return text.replace(emailRegex, "[EMAIL_HIDDEN]");
+            }
+            return text;
         }
 
-        async function processQuery() {
+        async function process() {
             const input = document.getElementById('userInput');
-            const display = document.getElementById('chatDisplay');
-            const btn = document.getElementById('sendBtn');
-            const userText = input.value;
+            const chat = document.getElementById('chat');
+            const rawText = input.value;
+            if(!rawText) return;
 
-            if(!userText || GEMINI_API_KEY === "ضعه_هنا") {
-                alert("Please enter a message and make sure API Key is set.");
-                return;
-            }
-
-            btn.disabled = true;
-            display.innerHTML += `<div class="bubble user">${userText}</div>`;
+            chat.innerHTML += `<div class="msg user">${rawText}</div>`;
+            const cleaned = scrub(rawText);
             
-            // الدرع (Scrubbing)
-            const cleanText = scrubData(userText);
-            display.innerHTML += `<div class="bubble shield-log">🛡️ SHIELD ACTION: Sensitive data scrubbed. Sending secure prompt: "${cleanText}"</div>`;
-            input.value = "";
-            display.scrollTop = display.scrollHeight;
+            if(cleaned !== rawText) {
+                chat.innerHTML += `<div class="msg shield-msg">🛡️ تم حجب بيانات حساسة: "${cleaned}"</div>`;
+            }
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: cleanText }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: cleaned }] }] })
                 });
-
-                const data = await response.json();
+                const data = await res.json();
                 const aiResponse = data.candidates[0].content.parts[0].text;
-
-                display.innerHTML += `<div class="bubble ai"><strong>Secure AI Response:</strong><br>${aiResponse}</div>`;
-            } catch (error) {
-                display.innerHTML += `<div class="bubble ai">Connection error. Check API Key or Console.</div>`;
+                chat.innerHTML += `<div class="msg ai">${aiResponse}</div>`;
+            } catch (e) {
+                chat.innerHTML += `<div class="msg ai">خطأ في الاتصال. تأكد من وضع API Key الصحيح.</div>`;
             }
-
-            btn.disabled = false;
-            display.scrollTop = display.scrollHeight;
+            input.value = "";
+            chat.scrollTop = chat.scrollHeight;
         }
-
-        document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') processQuery(); });
     </script>
 </body>
 </html>
