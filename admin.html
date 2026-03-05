@@ -2,99 +2,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AI SHIELD | Admin Control</title>
+    <title>AI SHIELD | Admin Dashboard</title>
     <style>
-        body { font-family: sans-serif; background: #050505; color: white; padding: 40px; }
-        .container { max-width: 900px; margin: auto; }
-        .card { background: #0c0c0c; border: 1px solid #1a1a1a; padding: 30px; border-radius: 20px; }
-        input { background: #151515; border: 1px solid #222; color: white; padding: 12px; border-radius: 8px; width: 250px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #050505; color: white; padding: 50px; }
+        .box { background: #0c0c0c; border: 1px solid #1a1a1a; padding: 30px; border-radius: 20px; max-width: 800px; margin: auto; }
+        input { background: #151515; border: 1px solid #222; color: white; padding: 12px; border-radius: 8px; width: 60%; }
         button { background: #0070f3; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        table { width: 100%; margin-top: 30px; border-collapse: collapse; }
-        th { text-align: left; color: #555; padding: 10px; border-bottom: 1px solid #1a1a1a; }
-        td { padding: 15px 10px; border-bottom: 1px solid #111; font-family: monospace; }
-        .badge { background: #27ae60; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; }
+        .key-list { margin-top: 30px; border-top: 1px solid #1a1a1a; padding-top: 20px; }
+        .key-item { display: flex; justify-content: space-between; padding: 10px; background: #111; margin-bottom: 5px; border-radius: 5px; font-family: monospace; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h1>🛡️ Admin Central</h1>
-    <p style="color: #666;">Manage Client Licenses & Security Policies</p>
-
-    <div class="card">
-        <h3>Generate New Client Key</h3>
-        <div style="display: flex; gap: 15px;">
-            <input type="text" id="clientName" placeholder="Client Name (e.g. Tesla)">
-            <button onclick="generateKey()">Create sk_live Key</button>
+    <div class="box">
+        <h1>🛡️ Admin Control</h1>
+        <p>Generate license keys for your customers.</p>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="cName" placeholder="Customer Name...">
+            <button onclick="createKey()">Generate Key</button>
         </div>
+        <div class="key-list" id="list"></div>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Client Name</th>
-                <th>API Key</th>
-                <th>Plan</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="keyTable">
-            </tbody>
-    </table>
-</div>
+    <script>
+        const SB_URL = "https://xjjuvagvfaocvszztkgh.supabase.co";
+        const SB_KEY = "sb_publishable_vhoqtLU78J0jm5vVb5P0Jg_OFMXQ4Fl";
 
-<script>
-    // ربط البيانات بـ Supabase
-    const SB_URL = "https://xjjuvagvfaocvszztkgh.supabase.co";
-    const SB_KEY = "sb_publishable_vhoqtLU78J0jm5vVb5P0Jg_OFMXQ4Fl";
+        async function createKey() {
+            const name = document.getElementById('cName').value;
+            if(!name) return;
+            const key = "sk_live_" + Math.random().toString(36).substr(2, 12);
 
-    async function generateKey() {
-        const name = document.getElementById('clientName').value;
-        if(!name) return alert("Enter client name");
-
-        const newKey = "sk_live_" + Math.random().toString(36).substr(2, 16);
-        
-        // حفظ المفتاح في Supabase
-        const res = await fetch(`${SB_URL}/rest/v1/customers`, {
-            method: 'POST',
-            headers: { 
-                'apikey': SB_KEY, 
-                'Authorization': `Bearer ${SB_KEY}`, 
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation'
-            },
-            body: JSON.stringify({ 
-                name: name, 
-                api_key: newKey, 
-                plan: 'Enterprise',
-                status: 'active'
-            })
-        });
-
-        if(res.ok) {
-            loadKeys();
-            alert("Key Generated: " + newKey);
+            await fetch(`${SB_URL}/rest/v1/customers`, {
+                method: 'POST',
+                headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, api_key: key, plan: 'Pro' })
+            });
+            alert("Created: " + key);
+            load();
         }
-    }
 
-    async function loadKeys() {
-        const res = await fetch(`${SB_URL}/rest/v1/customers`, {
-            headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
-        });
-        const data = await res.json();
-        
-        const table = document.getElementById('keyTable');
-        table.innerHTML = data.map(item => `
-            <tr>
-                <td>${item.name}</td>
-                <td style="color: #00dfd8">${item.api_key}</td>
-                <td>${item.plan}</td>
-                <td><span class="badge">ACTIVE</span></td>
-            </tr>
-        `).join('');
-    }
-
-    loadKeys();
-</script>
+        async function load() {
+            const res = await fetch(`${SB_URL}/rest/v1/customers`, {
+                headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+            });
+            const data = await res.json();
+            document.getElementById('list').innerHTML = data.map(i => `
+                <div class="key-item">
+                    <span>${i.name}</span>
+                    <span style="color: #00dfd8">${i.api_key}</span>
+                </div>
+            `).join('');
+        }
+        load();
+    </script>
 </body>
 </html>
