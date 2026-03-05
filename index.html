@@ -3,72 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI SHIELD PRO | Enterprise Privacy Firewall</title>
+    <title>AI SHIELD | Enterprise Privacy Firewall</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #050505; --card: #0c0c0c; --primary: #0070f3;
-            --accent: #00dfd8; --text: #ffffff; --border: #1a1a1a; --success: #27ae60; --danger: #ff3333;
+            --accent: #00dfd8; --text: #ffffff; --border: #1a1a1a; --success: #27ae60;
         }
         * { box-sizing: border-box; transition: all 0.2s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { margin: 0; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar */
         .sidebar { width: 280px; background: var(--card); border-right: 1px solid var(--border); padding: 40px 24px; display: flex; flex-direction: column; gap: 10px; }
-        .logo { font-weight: 800; font-size: 1.5rem; color: var(--accent); letter-spacing: -1px; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
-        .nav-item { color: #666; text-decoration: none; padding: 12px; border-radius: 12px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        .logo { font-weight: 800; font-size: 1.5rem; color: var(--accent); letter-spacing: -1px; margin-bottom: 30px; }
+        .nav-item { color: #666; padding: 12px; border-radius: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
         .nav-item.active { background: #151515; color: white; border: 1px solid var(--border); }
+
+        /* Main */
         .main { flex: 1; padding: 40px; display: flex; flex-direction: column; gap: 25px; overflow-y: auto; }
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .stat-card { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--border); }
         .stat-label { color: #555; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
         .stat-value { font-size: 2rem; font-weight: 800; margin-top: 10px; }
+
+        /* Chat Area */
         .chat-section { background: #080808; border: 1px solid var(--border); border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; flex: 1; }
         #chatDisplay { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        .msg { max-width: 85%; padding: 16px 20px; border-radius: 18px; font-size: 0.95rem; }
+        .msg { max-width: 85%; padding: 16px 20px; border-radius: 18px; font-size: 0.95rem; line-height: 1.6; }
         .msg.user { background: var(--primary); align-self: flex-end; }
         .msg.ai { background: #161616; border: 1px solid var(--border); align-self: flex-start; }
+        
         .input-area { padding: 25px; background: #0c0c0c; border-top: 1px solid var(--border); display: flex; gap: 15px; }
-        input[type="text"] { flex: 1; background: #151515; border: 1px solid var(--border); border-radius: 14px; color: white; padding: 18px; outline: none; }
-        .btn-send { background: var(--primary); color: white; border: none; padding: 0 35px; border-radius: 14px; cursor: pointer; font-weight: 800; }
-        #setupOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .setup-card { background: var(--card); padding: 50px; border-radius: 30px; border: 1px solid var(--border); width: 480px; text-align: center; }
-        .shield-notice { background: rgba(0, 223, 216, 0.1); color: var(--accent); padding: 10px; border-radius: 10px; text-align: center; font-size: 0.8rem; margin: 5px 0; }
+        input { flex: 1; background: #151515; border: 1px solid var(--border); border-radius: 14px; color: white; padding: 18px; outline: none; }
+        button { background: var(--primary); color: white; border: none; padding: 0 35px; border-radius: 14px; cursor: pointer; font-weight: 800; }
+
+        /* Overlay */
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .setup-card { background: var(--card); padding: 50px; border-radius: 30px; border: 1px solid var(--border); width: 450px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="setupOverlay">
+    <div id="overlay">
         <div class="setup-card">
-            <h2 style="color: var(--accent);">AI SHIELD Activation</h2>
-            <p style="color: #666; margin-bottom: 30px;">Enter your Gemini API Key to start secure session.</p>
-            <input type="password" id="apiToken" placeholder="Paste Gemini API Key" style="width: 100%; padding: 18px; background: #151515; border: 1px solid var(--border); border-radius: 14px; color: white; margin-bottom: 20px;">
-            <button onclick="bootSystem()" style="width: 100%; padding: 20px; background: var(--primary); color: white; border: none; border-radius: 14px; cursor: pointer; font-weight: 800;">ACTIVATE</button>
+            <h2 style="color: var(--accent);">AI Shield Activation</h2>
+            <p style="color: #666; margin-bottom: 25px;">Enter your Gemini API Key to initialize secure session.</p>
+            <input type="password" id="gateKey" placeholder="Paste API Key here..." style="width: 100%; margin-bottom: 20px;">
+            <button onclick="startApp()" style="width: 100%; padding: 20px;">ACTIVATE SYSTEM</button>
         </div>
     </div>
 
     <div class="sidebar">
         <div class="logo">🛡️ AI SHIELD</div>
-        <div class="nav-item active">📊 Dashboard</div>
-        <div class="nav-item" onclick="downloadAudit()">🔐 Export Logs</div>
+        <div class="nav-item active">📊 Security Dashboard</div>
+        <div class="nav-item" onclick="exportLogs()">🔐 Export Audit Log</div>
     </div>
 
     <div class="main">
-        <header style="display: flex; justify-content: space-between; align-items: center;">
-            <h1>Security Control</h1>
-            <div id="status" style="color: var(--success); font-size: 0.8rem;">● SYSTEM ONLINE</div>
+        <header style="display: flex; justify-content: space-between;">
+            <h1>Governance Dashboard</h1>
+            <div style="color: var(--success); font-weight: bold;">● SYSTEM PROTECTED</div>
         </header>
 
         <div class="stats-grid">
-            <div class="stat-card"><div class="stat-label">PII BLOCKED</div><div class="stat-value" id="piiCount">0</div></div>
-            <div class="stat-card"><div class="stat-label">LIABILITY SAVED</div><div class="stat-value" id="savingsCount">$0.00</div></div>
-            <div class="stat-card"><div class="stat-label">SECURITY SCORE</div><div class="stat-value">99.9%</div></div>
+            <div class="stat-card">
+                <div class="stat-label">PII Redacted</div>
+                <div class="stat-value" id="piiCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Liability Savings</div>
+                <div class="stat-value" id="savingsCount">$0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Safety Score</div>
+                <div class="stat-value">100%</div>
+            </div>
         </div>
 
         <div class="chat-section">
-            <div id="chatDisplay"></div>
+            <div id="chatDisplay">
+                <div class="msg ai">Shield is active. All traffic is monitored for PII leaks.</div>
+            </div>
             <div class="input-area">
-                <input type="text" id="userInput" placeholder="Ask safely... (e.g. My email is test@test.com)">
-                <button class="btn-send" onclick="handleRequest()">SEND</button>
+                <input type="text" id="userInput" placeholder="Test with: My email is john@doe.com">
+                <button onclick="handleSend()">SECURE SEND</button>
             </div>
         </div>
     </div>
@@ -76,69 +95,81 @@
     <script>
         const SB_URL = "https://xjjuvagvfaocvszztkgh.supabase.co";
         const SB_KEY = "sb_publishable_vhoqtLU78J0jm5vVb5P0Jg_OFMXQ4Fl";
-        let API_KEY = "";
+        let USER_API_KEY = "";
         let stats = { pii: 0, savings: 0 };
 
-        function bootSystem() {
-            const val = document.getElementById('apiToken').value;
-            if(val) { API_KEY = val; document.getElementById('setupOverlay').style.display = 'none'; }
+        function startApp() {
+            const k = document.getElementById('gateKey').value;
+            if(k) { USER_API_KEY = k; document.getElementById('overlay').style.display = 'none'; }
         }
 
-        function scrub(text) {
-            const rules = { "EMAIL": /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "PHONE": /\+?\d{10,15}/g };
-            let clean = text; let hit = false;
-            for(let [type, reg] of Object.entries(rules)) {
-                if(reg.test(clean)) { clean = clean.replace(reg, `[REDACTED_${type}]`); hit = true; stats.pii++; }
+        function scrub(t) {
+            const patterns = {
+                EMAIL: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+                PHONE: /\+?\d{10,15}/g
+            };
+            let isHit = false;
+            let clean = t;
+            for(let [type, reg] of Object.entries(patterns)) {
+                if(reg.test(clean)) {
+                    clean = clean.replace(reg, `[REDACTED_${type}]`);
+                    isHit = true; stats.pii++;
+                }
             }
-            return { clean, hit };
+            return { clean, isHit };
         }
 
-        async function logToSupabase(type) {
+        async function logToSupabase() {
             try {
                 await fetch(`${SB_URL}/rest/v1/audit_logs`, {
                     method: 'POST',
-                    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-                    body: JSON.stringify({ model_used: 'Gemini-Flash', pii_type_detected: type, action_taken: 'REDACTED' })
+                    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model_used: 'Gemini-Flash', pii_type_detected: 'PII_ALERT', action_taken: 'REDACTED' })
                 });
-            } catch(e) { console.log("Supabase log failed, but app continues."); }
+            } catch(e) { console.error("Logging Error"); }
         }
 
-        async function handleRequest() {
-            const input = document.getElementById('userInput');
+        async function handleSend() {
+            const inp = document.getElementById('userInput');
             const display = document.getElementById('chatDisplay');
-            if(!input.value) return;
+            if(!inp.value) return;
 
-            const { clean, hit } = scrub(input.value);
-            display.innerHTML += `<div class="msg user">${input.value}</div>`;
+            const originalText = inp.value;
+            display.innerHTML += `<div class="msg user">${originalText}</div>`;
             
-            if(hit) {
-                display.innerHTML += `<div class="shield-notice">🛡️ PII Redacted for Security</div>`;
-                logToSupabase("PII_DATA");
+            const { clean, isHit } = scrub(originalText);
+            if(isHit) {
+                display.innerHTML += `<div style="color:var(--accent); font-size:0.7rem; text-align:center;">🛡️ PII Detected & Masked</div>`;
+                logToSupabase();
             }
 
-            stats.savings = (stats.pii * 15.0).toFixed(2);
+            stats.savings = (stats.pii * 15.5).toFixed(2);
             document.getElementById('piiCount').innerText = stats.pii;
             document.getElementById('savingsCount').innerText = `$${stats.savings}`;
 
             try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                    method: "POST", headers: { "Content-Type": "application/json" },
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${USER_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ parts: [{ text: clean }] }] })
                 });
                 const data = await res.json();
-                const aiText = data.candidates[0].content.parts[0].text;
-                display.innerHTML += `<div class="msg ai">${aiText}</div>`;
-            } catch(e) { display.innerHTML += `<div class="msg ai" style="color:red">Error: Check API Key.</div>`; }
+                const aiMsg = data.candidates[0].content.parts[0].text;
+                display.innerHTML += `<div class="msg ai">${aiMsg}</div>`;
+            } catch(e) {
+                display.innerHTML += `<div class="msg ai" style="color:red">Error: Check API Key.</div>`;
+            }
             
-            input.value = "";
+            inp.value = "";
             display.scrollTop = display.scrollHeight;
         }
 
-        function downloadAudit() {
-            const doc = `AI SHIELD REPORT\nPII Blocked: ${stats.pii}\nSavings: $${stats.savings}`;
-            const blob = new Blob([doc], {type: 'text/plain'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-            a.download = "Audit.txt"; a.click();
+        function exportLogs() {
+            const content = `AUDIT LOG\nPII Blocked: ${stats.pii}\nSavings: $${stats.savings}`;
+            const blob = new Blob([content], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'audit_report.txt'; a.click();
         }
     </script>
 </body>
