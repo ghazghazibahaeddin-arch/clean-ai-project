@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مساعدك الذكي - Groq AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <title>AI Assistant | Groq Powered</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2563eb;
-            --bg-color: #f8fafc;
+            --primary-color: #000000;
+            --bg-color: #f4f4f9;
             --chat-bg: #ffffff;
-            --user-msg: #2563eb;
-            --ai-msg: #f1f5f9;
+            --user-msg: #007bff;
+            --ai-msg: #f0f0f5;
+            --text-dark: #1a1a1a;
         }
 
         body {
-            font-family: 'Tajawal', sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
             margin: 0;
             display: flex;
@@ -24,25 +25,25 @@
             height: 100vh;
         }
 
-        .container {
+        .chat-container {
             width: 100%;
-            max-width: 500px;
-            height: 90vh;
+            max-width: 450px;
+            height: 85vh;
             background: var(--chat-bg);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-radius: 20px;
             overflow: hidden;
         }
 
-        .header {
+        .chat-header {
             background: var(--primary-color);
             color: white;
             padding: 20px;
             text-align: center;
-            font-weight: bold;
-            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         #chat-box {
@@ -51,77 +52,94 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            background: #fafafa;
         }
 
         .message {
-            max-width: 85%;
+            max-width: 80%;
             padding: 12px 16px;
-            border-radius: 15px;
+            border-radius: 18px;
             font-size: 0.95rem;
-            line-height: 1.5;
+            line-height: 1.4;
             word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .user {
-            align-self: flex-start;
+            align-self: flex-end;
             background: var(--user-msg);
             color: white;
-            border-bottom-left-radius: 2px;
+            border-bottom-right-radius: 2px;
         }
 
         .ai {
-            align-self: flex-end;
+            align-self: flex-start;
             background: var(--ai-msg);
-            color: #334155;
-            border-bottom-right-radius: 2px;
+            color: var(--text-dark);
+            border-bottom-left-radius: 2px;
+        }
+
+        .typing-indicator {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 10px;
+            display: none;
         }
 
         .input-area {
             padding: 20px;
-            border-top: 1px solid #e2e8f0;
+            background: white;
+            border-top: 1px solid #eee;
             display: flex;
             gap: 10px;
         }
 
         input {
             flex: 1;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
             outline: none;
-            transition: border-color 0.3s;
+            font-size: 14px;
         }
 
-        input:focus { border-color: var(--primary-color); }
+        input:focus {
+            border-color: var(--user-msg);
+        }
 
         button {
             background: var(--primary-color);
             color: white;
             border: none;
             padding: 0 20px;
-            border-radius: 10px;
+            border-radius: 25px;
             cursor: pointer;
-            font-weight: bold;
-            transition: opacity 0.3s;
+            font-weight: 600;
+            transition: transform 0.2s, opacity 0.2s;
         }
 
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        /* تأثير النبض أثناء التفكير */
-        .typing { font-style: italic; color: #94a3b8; font-size: 0.8rem; }
+        button:hover { opacity: 0.9; }
+        button:active { transform: scale(0.95); }
+        button:disabled { background: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">مساعد Groq الذكي ⚡</div>
+<div class="chat-container">
+    <div class="chat-header">AI Chat Assistant</div>
     <div id="chat-box">
-        <div class="message ai">مرحباً! كيف يمكنني مساعدتك اليوم؟</div>
+        <div class="message ai">Hello! How can I help you today?</div>
     </div>
+    <div id="typing" class="typing-indicator" style="padding-left: 20px;">AI is thinking...</div>
     <div class="input-area">
-        <input type="text" id="user-input" placeholder="اكتب سؤالك هنا..." autocomplete="off">
-        <button id="send-btn">إرسال</button>
+        <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+        <button id="send-btn">Send</button>
     </div>
 </div>
 
@@ -129,6 +147,7 @@
     const chatBox = document.getElementById('chat-box');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
+    const typingIndicator = document.getElementById('typing');
 
     function appendMessage(role, text) {
         const msgDiv = document.createElement('div');
@@ -142,17 +161,14 @@
         const text = userInput.value.trim();
         if (!text) return;
 
+        // User Message
         appendMessage('user', text);
         userInput.value = '';
         sendBtn.disabled = true;
-
-        // إضافة مؤشر انتظار بسيط
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'message ai typing';
-        loadingDiv.innerText = 'جاري التفكير...';
-        chatBox.appendChild(loadingDiv);
+        typingIndicator.style.display = 'block';
 
         try {
+            // Pointing to your Vercel Serverless Function
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -160,16 +176,19 @@
             });
 
             const data = await response.json();
-            chatBox.removeChild(loadingDiv); // إزالة مؤشر الانتظار
+            typingIndicator.style.display = 'none';
 
-            if (data.choices && data.choices[0]) {
-                appendMessage('ai', data.choices[0].message.content);
+            if (response.ok && data.choices && data.choices[0]) {
+                const aiReply = data.choices[0].message.content;
+                appendMessage('ai', aiReply);
             } else {
-                throw new Error();
+                const errorMsg = data.error?.message || "Something went wrong.";
+                appendMessage('ai', "❌ Error: " + errorMsg);
             }
         } catch (error) {
-            chatBox.removeChild(loadingDiv);
-            appendMessage('ai', '❌ عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.');
+            typingIndicator.style.display = 'none';
+            appendMessage('ai', "❌ Connection failed. Check your Vercel logs.");
+            console.error("Fetch Error:", error);
         } finally {
             sendBtn.disabled = false;
         }
@@ -182,5 +201,4 @@
 </script>
 
 </body>
-  </html>
-  
+</html>
