@@ -2,30 +2,99 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AI Shield Dashboard</title>
+    <title>AI SHIELD | Admin Control</title>
     <style>
-        body { background: #010409; color: white; font-family: sans-serif; padding: 40px; }
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .card { background: #0d1117; padding: 25px; border-radius: 12px; border: 1px solid #30363d; }
-        .card h3 { color: #8b949e; font-size: 0.8rem; margin: 0; }
-        .card div { font-size: 2rem; font-weight: bold; margin-top: 10px; color: #58a6ff; }
+        body { font-family: sans-serif; background: #050505; color: white; padding: 40px; }
+        .container { max-width: 900px; margin: auto; }
+        .card { background: #0c0c0c; border: 1px solid #1a1a1a; padding: 30px; border-radius: 20px; }
+        input { background: #151515; border: 1px solid #222; color: white; padding: 12px; border-radius: 8px; width: 250px; }
+        button { background: #0070f3; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         table { width: 100%; margin-top: 30px; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #30363d; font-size: 0.9rem; }
+        th { text-align: left; color: #555; padding: 10px; border-bottom: 1px solid #1a1a1a; }
+        td { padding: 15px 10px; border-bottom: 1px solid #111; font-family: monospace; }
+        .badge { background: #27ae60; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; }
     </style>
 </head>
 <body>
-    <h1>Security Operations Center</h1>
-    <div class="stats">
-        <div class="card"><h3>TOTAL TRAFFIC</h3><div>1.2k</div></div>
-        <div class="card"><h3>LEAKS BLOCKED</h3><div style="color:#f85149">42</div></div>
-        <div class="card"><h3>COST SAVED</h3><div style="color:#3fb950">$840.20</div></div>
+
+<div class="container">
+    <h1>🛡️ Admin Central</h1>
+    <p style="color: #666;">Manage Client Licenses & Security Policies</p>
+
+    <div class="card">
+        <h3>Generate New Client Key</h3>
+        <div style="display: flex; gap: 15px;">
+            <input type="text" id="clientName" placeholder="Client Name (e.g. Tesla)">
+            <button onclick="generateKey()">Create sk_live Key</button>
+        </div>
     </div>
+
     <table>
-        <thead><tr><th>Timestamp</th><th>Status</th><th>Security Layer</th></tr></thead>
-        <tbody>
-            <tr><td>14:32:10</td><td style="color:#3fb950">SECURE</td><td>PII Masking</td></tr>
-            <tr><td>14:30:05</td><td style="color:#f85149">BLOCKED</td><td>API Leak Prevention</td></tr>
-        </tbody>
+        <thead>
+            <tr>
+                <th>Client Name</th>
+                <th>API Key</th>
+                <th>Plan</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="keyTable">
+            </tbody>
     </table>
+</div>
+
+<script>
+    // ربط البيانات بـ Supabase
+    const SB_URL = "https://xjjuvagvfaocvszztkgh.supabase.co";
+    const SB_KEY = "sb_publishable_vhoqtLU78J0jm5vVb5P0Jg_OFMXQ4Fl";
+
+    async function generateKey() {
+        const name = document.getElementById('clientName').value;
+        if(!name) return alert("Enter client name");
+
+        const newKey = "sk_live_" + Math.random().toString(36).substr(2, 16);
+        
+        // حفظ المفتاح في Supabase
+        const res = await fetch(`${SB_URL}/rest/v1/customers`, {
+            method: 'POST',
+            headers: { 
+                'apikey': SB_KEY, 
+                'Authorization': `Bearer ${SB_KEY}`, 
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify({ 
+                name: name, 
+                api_key: newKey, 
+                plan: 'Enterprise',
+                status: 'active'
+            })
+        });
+
+        if(res.ok) {
+            loadKeys();
+            alert("Key Generated: " + newKey);
+        }
+    }
+
+    async function loadKeys() {
+        const res = await fetch(`${SB_URL}/rest/v1/customers`, {
+            headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+        });
+        const data = await res.json();
+        
+        const table = document.getElementById('keyTable');
+        table.innerHTML = data.map(item => `
+            <tr>
+                <td>${item.name}</td>
+                <td style="color: #00dfd8">${item.api_key}</td>
+                <td>${item.plan}</td>
+                <td><span class="badge">ACTIVE</span></td>
+            </tr>
+        `).join('');
+    }
+
+    loadKeys();
+</script>
 </body>
 </html>
