@@ -1,7 +1,167 @@
 <!DOCTYPE html>
-<html>
-<body style="background: red; color: white;">
-    <h1>تجرية التحديث</h1>
-    <p>إذا رأيت اللون الأحمر، فالتحديث يعمل!</p>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Secure AI Gateway</title>
+    <style>
+        :root {
+            --bg: #0b0e11;
+            --card: #15191c;
+            --primary: #0070f3;
+            --border: #2d3339;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: #e0e0e0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: rgba(11, 14, 17, 0.9);
+        }
+
+        #chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* تصميم فقاعات الدردشة */
+        .msg {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .user-msg {
+            align-self: flex-start; /* لليسار في الواجهة العربية */
+            background: var(--primary);
+            color: white;
+            border-bottom-left-radius: 2px;
+        }
+
+        .ai-msg {
+            align-self: flex-end; /* لليمين */
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-bottom-right-radius: 2px;
+        }
+
+        .input-wrapper {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .input-box {
+            display: flex;
+            gap: 10px;
+            background: var(--card);
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #status {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2 style="margin:0; font-size: 1.1rem;">🛡️ Secure AI Gateway</h2>
+    </header>
+
+    <div id="chat-container">
+        <div class="msg ai-msg">مرحباً! البوابة الآمنة جاهزة لحماية بياناتك. كيف يمكنني مساعدتك؟</div>
+    </div>
+
+    <div class="input-wrapper">
+        <div class="input-box">
+            <input type="text" id="user-input" placeholder="اكتب رسالتك هنا..." onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button onclick="sendMessage()">إرسال</button>
+        </div>
+        <div id="status">✅ Privacy Shield: ACTIVE</div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const chat = document.getElementById('chat-container');
+            const status = document.getElementById('status');
+            const prompt = input.value.trim();
+
+            if (!prompt) return;
+
+            // إضافة رسالة المستخدم
+            const userDiv = document.createElement('div');
+            userDiv.className = 'msg user-msg';
+            userDiv.innerText = prompt;
+            chat.appendChild(userDiv);
+            
+            input.value = "";
+            status.innerText = "⏳ جاري التشفير والمعالجة...";
+            chat.scrollTop = chat.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const aiDiv = document.createElement('div');
+                    aiDiv.className = 'msg ai-msg';
+                    aiDiv.innerText = data.reply;
+                    chat.appendChild(aiDiv);
+                    status.innerText = "✅ Session Secured";
+                } else {
+                    status.innerText = "❌ خطأ في النظام";
+                }
+            } catch (e) {
+                status.innerText = "❌ فشل الاتصال";
+            }
+            chat.scrollTop = chat.scrollHeight;
+        }
+    </script>
 </body>
 </html>
