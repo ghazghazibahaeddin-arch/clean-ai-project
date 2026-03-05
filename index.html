@@ -3,208 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI SHIELD | Enterprise Privacy Gateway</title>
+    <title>AI SHIELD | Professional Privacy Gateway</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #050505; --card: #0c0c0c; --primary: #0070f3;
-            --accent: #00dfd8; --text: #ffffff; --border: #1a1a1a; --danger: #ff3333;
-        }
-        
-        * { box-sizing: border-box; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-family: 'Plus Jakarta Sans', sans-serif; }
-        
+        :root { --bg: #050505; --card: #0c0c0c; --primary: #0070f3; --accent: #00dfd8; --text: #ffffff; --border: #1a1a1a; --danger: #ff3333; }
+        * { box-sizing: border-box; transition: all 0.2s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { margin: 0; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-
-        /* Sidebar - التصميم الجانبي */
-        .sidebar { width: 280px; background: var(--card); border-right: 1px solid var(--border); padding: 40px 24px; display: flex; flex-direction: column; gap: 24px; z-index: 100; }
-        .logo { font-weight: 800; font-size: 1.6rem; color: var(--text); display: flex; align-items: center; gap: 12px; letter-spacing: -1px; }
-        .logo span { color: var(--accent); }
-        
-        .nav-group { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
-        .nav-item { color: #666; text-decoration: none; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; font-weight: 500; display: flex; align-items: center; gap: 12px; }
-        .nav-item:hover, .nav-item.active { background: #151515; color: white; border: 1px solid var(--border); }
-        .nav-item.pro { color: var(--accent); border: 1px dashed var(--accent); margin-top: 10px; }
-
-        /* Main Content - المحتوى الرئيسي */
-        .main { flex: 1; padding: 40px 60px; overflow-y: auto; display: flex; flex-direction: column; gap: 30px; }
-        .header { display: flex; justify-content: space-between; align-items: flex-end; }
-        .status-pill { background: rgba(0, 223, 216, 0.1); color: var(--accent); padding: 8px 16px; border-radius: 30px; font-size: 0.75rem; border: 1px solid var(--accent); font-weight: 700; letter-spacing: 1px; }
-
-        /* Dashboard Grid */
-        .content-grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 30px; align-items: start; }
-        .card { background: var(--card); padding: 24px; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .card h3 { font-size: 0.75rem; color: #444; text-transform: uppercase; margin: 0 0 20px 0; letter-spacing: 1.5px; }
-
-        /* Chat Window - نافذة الدردشة */
-        .chat-engine { background: #080808; border-radius: 24px; border: 1px solid var(--border); height: 550px; display: flex; flex-direction: column; position: relative; overflow: hidden; }
-        #chatDisplay { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
-        
-        .bubble { max-width: 80%; padding: 14px 20px; border-radius: 16px; font-size: 0.95rem; line-height: 1.6; animation: fadeIn 0.4s ease; }
-        .bubble.user { background: var(--primary); align-self: flex-end; color: white; border-bottom-right-radius: 4px; }
-        .bubble.ai { background: #121212; border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
-        .bubble.system { background: rgba(0, 223, 216, 0.03); border: 1px dashed var(--accent); color: var(--accent); align-self: center; width: 100%; text-align: center; font-size: 0.8rem; }
-
-        .input-box { padding: 25px; background: #0c0c0c; border-top: 1px solid var(--border); display: flex; gap: 15px; }
-        input { flex: 1; background: #151515; border: 1px solid var(--border); border-radius: 14px; color: white; padding: 16px 20px; outline: none; font-size: 1rem; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0, 112, 243, 0.1); }
-        button.send-btn { background: var(--primary); color: white; border: none; padding: 0 30px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 0.9rem; }
-        button:hover { transform: translateY(-2px); filter: brightness(1.1); }
-
-        /* Logs Table - جدول السجلات */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; color: #333; font-size: 0.7rem; padding: 12px; border-bottom: 1px solid var(--border); }
-        td { padding: 12px; font-size: 0.85rem; border-bottom: 1px solid #111; color: #888; }
-        .clean-tag { color: var(--accent); font-weight: 800; font-size: 0.7rem; }
-
-        /* Global Alert */
-        #safetyAlert { position: fixed; top: 30px; right: 30px; background: var(--danger); color: white; padding: 20px 30px; border-radius: 16px; font-weight: 800; z-index: 1000; display: none; box-shadow: 0 15px 40px rgba(255, 51, 51, 0.3); animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
-
-        /* Mobile Responsive */
-        @media (max-width: 1000px) { .sidebar { width: 80px; padding: 40px 10px; } .sidebar span, .logo span { display: none; } .main { padding: 20px; } .dashboard-grid { grid-template-columns: 1fr; } }
+        .sidebar { width: 280px; background: var(--card); border-right: 1px solid var(--border); padding: 40px 24px; display: flex; flex-direction: column; gap: 20px; }
+        .nav-item { color: #666; text-decoration: none; padding: 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+        .nav-item:hover, .nav-item.active { background: #151515; color: white; }
+        .main { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; }
+        .chat-engine { background: #080808; border-radius: 24px; border: 1px solid var(--border); height: 500px; display: flex; flex-direction: column; overflow: hidden; }
+        #chatDisplay { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .bubble { max-width: 85%; padding: 12px 18px; border-radius: 15px; font-size: 0.95rem; line-height: 1.5; animation: fadeIn 0.3s ease; }
+        .bubble.user { background: var(--primary); align-self: flex-end; }
+        .bubble.ai { background: #1a1a1a; border: 1px solid var(--border); align-self: flex-start; }
+        .bubble.shield-status { background: rgba(0, 223, 216, 0.05); border: 1px dashed var(--accent); color: var(--accent); align-self: center; width: 100%; text-align: center; font-size: 0.8rem; }
+        .input-box { padding: 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; background: #0c0c0c; }
+        input { flex: 1; background: #151515; border: 1px solid var(--border); border-radius: 12px; color: white; padding: 15px; outline: none; }
+        .send-btn { background: var(--primary); color: white; border: none; padding: 0 25px; border-radius: 12px; cursor: pointer; font-weight: 700; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div id="safetyAlert">⚠️ PRIVACY VIOLATION BLOCKED</div>
-
     <div class="sidebar">
-        <div class="logo">🛡️ <span>SHIELD</span></div>
-        <div class="nav-group">
-            <a href="#" class="nav-item active">📊 <span>Overview</span></a>
-            <a href="#" class="nav-item">🔐 <span>Audit Logs</span></a>
-            <a href="#" class="nav-item">⚙️ <span>Security Rules</span></a>
-            <a href="https://radhiayt.gumroad.com/l/ofuefu" class="nav-item pro">💎 <span>Get PRO Access</span></a>
-        </div>
-        <div style="margin-top: auto;">
-            <button onclick="window.location.href='https://radhiayt.gumroad.com/l/ofuefu'" style="width: 100%; background: transparent; border: 1px solid var(--border); color: #666; padding: 12px; border-radius: 12px; cursor: pointer; font-size: 0.8rem;">Export PDF Report</button>
-        </div>
+        <div style="font-weight: 800; color: var(--accent); font-size: 1.5rem; margin-bottom: 30px;">🛡️ AI SHIELD</div>
+        <div class="nav-item active">📊 Overview</div>
+        <div class="nav-item" onclick="alert('Upgrade to PRO to view detailed logs')">🔐 Scrubbing Logs</div>
+        <div class="nav-item" onclick="alert('Upgrade to PRO to customize rules')">⚙️ Security Rules</div>
+        <a href="https://radhiayt.gumroad.com/l/ofuefu" class="nav-item" style="color:var(--accent); border: 1px dashed var(--accent); margin-top:20px;">💎 Upgrade to PRO</a>
     </div>
 
     <div class="main">
-        <header class="header">
-            <div>
-                <h1 style="margin: 0; font-size: 2.2rem; font-weight: 800; letter-spacing: -1.5px;">Privacy Dashboard</h1>
-                <p style="color: #666; margin: 8px 0 0; font-size: 0.95rem;">Monitoring enterprise-grade AI interactions.</p>
-            </div>
-            <div class="status-pill">● SECURE GATEWAY ACTIVE</div>
+        <header style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="margin:0; font-size: 1.8rem;">Privacy Dashboard</h1>
+            <div style="color: var(--accent); font-size: 0.8rem; font-weight: bold;">● SYSTEM PROTECTED</div>
         </header>
 
-        <div class="content-grid">
-            <div class="chat-engine">
-                <div id="chatDisplay">
-                    <div class="bubble ai">System initialized. Your data is being scrubbed in real-time. How can I assist your business today?</div>
-                </div>
-                <div class="input-box">
-                    <input type="text" id="userInput" placeholder="Test here: My email is john@company.com...">
-                    <button class="send-btn" onclick="executeShield()">SHIELD & SEND</button>
-                </div>
+        <div class="chat-engine">
+            <div id="chatDisplay">
+                <div class="bubble ai">Privacy Gateway Ready. I will automatically scrub sensitive data from your requests. How can I help you?</div>
             </div>
-
-            <div style="display: flex; flex-direction: column; gap: 25px;">
-                <div class="card">
-                    <h3>Active Protections</h3>
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <label style="display: flex; gap: 12px; font-size: 0.9rem; align-items: center; color: #888;"><input type="checkbox" checked disabled> Automatic Email Scrubbing</label>
-                        <label style="display: flex; gap: 12px; font-size: 0.9rem; align-items: center; color: #888;"><input type="checkbox" checked disabled> Phone Number Masking</label>
-                        <label style="display: flex; gap: 12px; font-size: 0.9rem; align-items: center; color: #888;"><input type="checkbox" checked disabled> Credit Card Protection</label>
-                    </div>
-                </div>
-
-                <div class="card" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
-                    <h3>Live Security Logs</h3>
-                    <div style="overflow-y: auto; flex: 1;">
-                        <table id="logTable">
-                            <thead><tr><th>SOURCE</th><th>ACTION</th><th>RESULT</th></tr></thead>
-                            <tbody>
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="input-box">
+                <input type="text" id="userInput" placeholder="Ask me anything (e.g., My email is test@ai.com, help me write a mail)">
+                <button class="send-btn" id="sendBtn" onclick="process()">SHIELD & SEND</button>
             </div>
         </div>
     </div>
 
     <script>
-        // وظيفة إضافة السجلات
-        function pushLog(type) {
-            const table = document.querySelector("#logTable tbody");
-            const row = table.insertRow(0);
-            row.innerHTML = `<td>Prompt</td><td>${type} Scrub</td><td><span class="clean-tag">SECURED</span></td>`;
-            if(table.rows.length > 7) table.deleteRow(7);
+        // محرك الردود الذكي المدمج (بدون تكلفة)
+        function getSmartResponse(input) {
+            const text = input.toLowerCase();
+            if (text.includes("hi") || text.includes("hello")) return "Hello! I'm your secure AI assistant. How can I help you while keeping your data safe?";
+            if (text.includes("email") || text.includes("mail")) return "I see you're asking about emails. I've masked any addresses to ensure your privacy during this task.";
+            if (text.includes("code") || text.includes("help")) return "I can certainly help with that. Based on the secure data provided, here is the best approach...";
+            return "I've processed your request securely. I'm ready to assist with any further analysis or content generation you need.";
         }
 
-        // وظيفة التنبيه
-        function triggerAlert() {
-            const alert = document.getElementById('safetyAlert');
-            alert.style.display = 'block';
-            setTimeout(() => alert.style.display = 'none', 3000);
-        }
-
-        // محرك التنظيف (The Shield Logic)
-        function scrubData(text) {
+        function scrub(text) {
+            const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+            const phoneRegex = /\+?\d{10,15}/g;
             let clean = text;
-            let found = false;
-
-            const patterns = {
-                "Email": /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
-                "Phone": /\+?\d{10,15}/g,
-                "CreditCard": /\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}/g
-            };
-
-            for (let [type, regex] of Object.entries(patterns)) {
-                if(regex.test(clean)) {
-                    clean = clean.replace(regex, `[${type.toUpperCase()}_REDACTED]`);
-                    pushLog(type);
-                    found = true;
-                }
-            }
-
-            if(found) triggerAlert();
+            if (emailRegex.test(clean)) clean = clean.replace(emailRegex, "[EMAIL_HIDDEN]");
+            if (phoneRegex.test(clean)) clean = clean.replace(phoneRegex, "[PHONE_HIDDEN]");
             return clean;
         }
 
-        // وظيفة التنفيذ الرئيسية
-        function executeShield() {
+        function process() {
             const input = document.getElementById('userInput');
             const display = document.getElementById('chatDisplay');
-            const rawText = input.value;
+            const raw = input.value;
+            if (!raw) return;
 
-            if(!rawText) return;
-
-            // 1. عرض نص العميل
-            display.innerHTML += `<div class="bubble user">${rawText}</div>`;
+            // 1. عرض رسالة المستخدم
+            display.innerHTML += `<div class="bubble user">${raw}</div>`;
             
             // 2. تفعيل الدرع
-            const cleanText = scrubData(rawText);
-
-            // 3. عرض إجراء النظام
+            const cleaned = scrub(raw);
             setTimeout(() => {
-                display.innerHTML += `<div class="bubble system">🛡️ SHIELD ACTION: Sensitive data detected. Cleaned version: "${cleanText}"</div>`;
+                display.innerHTML += `<div class="bubble shield-status">🛡️ SHIELD ACTION: Data sanitized. Processing secure prompt: "${cleaned}"</div>`;
                 display.scrollTop = display.scrollHeight;
-            }, 500);
+            }, 400);
 
-            // 4. رد الذكاء الاصطناعي (محاكاة ذكية)
+            // 3. الرد الذكي بناءً على السؤال
             setTimeout(() => {
-                const aiResponses = [
-                    "I have analyzed the secure data packet. The enterprise architecture looks solid.",
-                    "Request received. I've processed your input according to the sanitized privacy guidelines.",
-                    "The filtered data has been cross-referenced. You may proceed with the next step of the audit."
-                ];
-                const response = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+                const response = getSmartResponse(raw);
                 display.innerHTML += `<div class="bubble ai"><strong>Secure AI:</strong> ${response}</div>`;
                 display.scrollTop = display.scrollHeight;
-            }, 1400);
+            }, 1200);
 
             input.value = "";
             display.scrollTop = display.scrollHeight;
         }
 
-        // تشغيل الإرسال عند الضغط على Enter
-        document.getElementById('userInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') executeShield();
+        // تفعيل زر Enter
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') process();
         });
     </script>
 </body>
