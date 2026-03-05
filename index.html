@@ -3,55 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Shield | Secure Enterprise Gateway</title>
+    <title>AI SHIELD | Enterprise Security</title>
     <style>
         :root { --bg: #0d1117; --card: #161b22; --primary: #2f81f7; --border: #30363d; --text: #c9d1d9; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; }
         header { padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #161b22; }
         #chat-flow { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 20px; }
-        .bubble { max-width: 75%; padding: 14px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .bubble { max-width: 75%; padding: 14px 18px; border-radius: 18px; font-size: 0.95rem; line-height: 1.5; }
         .user { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
         .ai { align-self: flex-start; background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 2px; }
         .input-zone { padding: 20px; background: #0d1117; border-top: 1px solid var(--border); }
         .box { display: flex; gap: 12px; background: var(--card); padding: 10px; border-radius: 12px; border: 1px solid var(--border); }
         input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 1rem; }
         button { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        #status-bar { text-align: center; font-size: 0.7rem; color: #8b949e; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .admin-link { color: var(--primary); text-decoration: none; font-size: 0.8rem; border: 1px solid var(--primary); padding: 5px 10px; border-radius: 5px; }
+        .dashboard-btn { color: var(--primary); text-decoration: none; font-size: 0.8rem; border: 1px solid var(--primary); padding: 5px 12px; border-radius: 6px; }
     </style>
 </head>
 <body>
     <header>
-        <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:1.5rem;">🛡️</span>
-            <strong>AI SHIELD</strong>
-        </div>
-        <a href="/admin.html" class="admin-link">Dashboard</a>
+        <strong>🛡️ AI SHIELD</strong>
+        <a href="/admin.html" class="dashboard-btn">ADMIN DASHBOARD</a>
     </header>
 
     <div id="chat-flow">
-        <div class="bubble ai">System Online. Privacy Shield is active. How can I assist your enterprise today?</div>
+        <div class="bubble ai">Security Gateway Active. All data is scrubbed before processing. How can I help?</div>
     </div>
 
     <div class="input-zone">
         <div class="box">
-            <input type="text" id="user-input" placeholder="Type secure message..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <input type="text" id="user-input" placeholder="Type sensitive message..." onkeypress="if(event.key==='Enter') sendMessage()">
             <button onclick="sendMessage()">SEND</button>
         </div>
-        <div id="status-bar">🔒 256-bit Encryption Active | Governance Mode</div>
+        <div style="text-align:center; font-size:10px; color:#666; margin-top:10px;">🔒 MILITARY-GRADE ENCRYPTION ACTIVE</div>
     </div>
 
     <script>
         async function sendMessage() {
             const input = document.getElementById('user-input');
             const flow = document.getElementById('chat-flow');
-            const status = document.getElementById('status-bar');
             const text = input.value.trim();
             if(!text) return;
 
             flow.innerHTML += `<div class="bubble user">${text}</div>`;
             input.value = "";
-            status.innerText = "⏳ ANALYZING & SCRUBBING DATA...";
 
             try {
                 const res = await fetch('/api/chat', {
@@ -61,9 +55,8 @@
                 });
                 const data = await res.json();
                 flow.innerHTML += `<div class="bubble ai">${data.reply}</div>`;
-                status.innerText = "✅ SECURE SESSION ACTIVE";
             } catch (e) {
-                status.innerText = "❌ GATEWAY ERROR";
+                flow.innerHTML += `<div class="bubble ai" style="color:red">Connection Error</div>`;
             }
             flow.scrollTop = flow.scrollHeight;
         }
