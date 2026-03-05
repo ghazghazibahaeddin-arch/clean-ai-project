@@ -3,150 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI SHIELD | Enterprise Data Firewall</title>
+    <title>AI SHIELD | SaaS Gateway</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --card: #0c0c0c; --primary: #0070f3; --accent: #00dfd8; --text: #ffffff; --border: #1a1a1a; }
-        * { box-sizing: border-box; transition: all 0.2s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { margin: 0; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+        :root { --bg: #050505; --card: #0c0c0c; --primary: #0070f3; --accent: #00dfd8; --text: #ffffff; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Layout */
-        .sidebar { width: 280px; background: var(--card); border-right: 1px solid var(--border); padding: 40px 24px; display: flex; flex-direction: column; gap: 10px; }
-        .main { flex: 1; padding: 40px; display: flex; flex-direction: column; gap: 25px; overflow-y: auto; }
+        /* Auth Screen */
+        #auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: var(--card); padding: 40px; border-radius: 24px; border: 1px solid #1a1a1a; width: 400px; text-align: center; }
         
-        /* SaaS Elements */
-        .stat-card { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
-        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
-        .stat-label { font-size: 0.7rem; color: #555; text-transform: uppercase; font-weight: bold; }
-
-        /* Chat System */
-        .chat-area { flex: 1; background: #080808; border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-        #messages { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .msg { max-width: 80%; padding: 15px; border-radius: 12px; font-size: 0.9rem; line-height: 1.5; }
-        .user { background: var(--primary); align-self: flex-end; }
-        .ai { background: #161616; border: 1px solid var(--border); align-self: flex-start; }
-        .redacted-tag { color: var(--accent); font-size: 0.7rem; font-weight: bold; margin-top: 5px; display: block; }
-
-        /* Controls */
-        .input-box { padding: 20px; background: #0c0c0c; border-top: 1px solid var(--border); display: flex; gap: 12px; }
-        input { flex: 1; background: #151515; border: 1px solid var(--border); border-radius: 12px; color: white; padding: 15px; outline: none; }
-        button { background: var(--primary); border: none; color: white; padding: 0 25px; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        /* Main UI */
+        #app { display: none; flex: 1; display: flex; flex-direction: column; }
+        .sidebar { width: 280px; background: var(--card); border-right: 1px solid #1a1a1a; padding: 30px; }
+        .main-content { flex: 1; padding: 40px; display: flex; flex-direction: column; gap: 20px; }
+        .chat-box { flex: 1; background: #080808; border-radius: 20px; border: 1px solid #1a1a1a; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         
-        /* Modal for SaaS Key */
-        #auth { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .auth-card { background: var(--card); padding: 40px; border-radius: 24px; border: 1px solid var(--border); width: 400px; text-align: center; }
+        input, button { padding: 15px; border-radius: 12px; border: 1px solid #222; outline: none; }
+        input { background: #151515; color: white; width: 100%; box-sizing: border-box; }
+        button { background: var(--primary); color: white; cursor: pointer; font-weight: bold; border: none; }
+        
+        .redacted { color: var(--accent); font-weight: bold; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <div id="auth">
+    <div id="auth-overlay">
         <div class="auth-card">
-            <h2 style="color: var(--accent);">AI Shield Activation</h2>
-            <p style="color: #666; font-size: 0.8rem;">Enter your Enterprise API Key (sk_company_xxx)</p>
-            <input type="password" id="sk_key" placeholder="sk_live_xxxxxx" style="width: 100%; margin-bottom: 20px;">
-            <button onclick="startApp()" style="width: 100%; padding: 15px;">AUTHENTICATE</button>
+            <h1 style="color: var(--accent);">🛡️ AI SHIELD</h1>
+            <p style="color: #666;">Enterprise Privacy Firewall</p>
+            <input type="password" id="sk_input" placeholder="Enter License Key (sk_live_...)">
+            <button onclick="authenticate()" style="width: 100%; margin-top: 15px;">ACTIVATE SYSTEM</button>
         </div>
     </div>
 
-    <div class="sidebar">
-        <div style="font-weight: 800; font-size: 1.5rem; color: var(--accent);">🛡️ AI SHIELD</div>
-        <p style="font-size: 0.7rem; color: #444;">V2.0 ENTERPRISE READY</p>
-        <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
-        <div style="background: #111; padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-            <canvas id="usageChart" height="150"></canvas>
-        </div>
-        <button onclick="downloadReport()" style="margin-top: 20px; background: #111; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; font-size: 0.8rem;">📥 Download Audit Report</button>
-    </div>
-
-    <div class="main">
-        <header style="display: flex; justify-content: space-between; align-items: center;">
-            <h1 style="font-size: 1.5rem; font-weight: 800;">Governance Dashboard</h1>
-            <div id="status" style="color: #27ae60; font-size: 0.8rem; font-weight: bold;">● FIREWALL ACTIVE</div>
-        </header>
-
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-            <div class="stat-card"><div class="stat-label">Blocked PII</div><div class="stat-value" id="pii_count">0</div></div>
-            <div class="stat-card"><div class="stat-label">Tokens Saved</div><div class="stat-value">1.4k</div></div>
-            <div class="stat-card"><div class="stat-label">Security Score</div><div class="stat-value">A+</div></div>
-        </div>
-
-        <div class="chat-area">
-            <div id="messages">
-                <div class="msg ai">System initialized. PII Detection (Email, Phone, CC, Names) is active.</div>
+    <div id="app" style="display: none; flex-direction: row; width: 100%;">
+        <div class="sidebar">
+            <h3>📊 Dashboard</h3>
+            <div style="background: #111; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                <small style="color: #555;">PII BLOCKED</small>
+                <div id="count" style="font-size: 2rem; font-weight: 800; color: var(--accent);">0</div>
             </div>
-            <div class="input-box">
-                <input type="text" id="userInput" placeholder="Test: My name is John and my phone is +123456789">
-                <button onclick="handleSend()">SECURE SEND</button>
+            <button onclick="downloadAudit()" style="width: 100%; background: #111; border: 1px solid #222;">📥 Download Audit</button>
+        </div>
+
+        <div class="main-content">
+            <header style="display: flex; justify-content: space-between;">
+                <h2>Security Gateway</h2>
+                <span style="color: #27ae60;">● SYSTEM PROTECTED</span>
+            </header>
+
+            <div id="chat" class="chat-box">
+                <div style="color: #444; text-align: center;">--- Secure Session Started ---</div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="userInput" placeholder="Type message... (Test: john@gmail.com)">
+                <button onclick="process()">SECURE SEND</button>
             </div>
         </div>
     </div>
 
     <script>
-        let stats = { pii: 0 };
-        let API_KEY = "";
+        const SB_URL = "https://xjjuvagvfaocvszztkgh.supabase.co";
+        const SB_KEY = "sb_publishable_vhoqtLU78J0jm5vVb5P0Jg_OFMXQ4Fl";
+        let stats = 0;
+        let activeClient = null;
 
-        function startApp() {
-            const key = document.getElementById('sk_key').value;
-            if(key.startsWith('sk_')) {
-                API_KEY = key; 
-                document.getElementById('auth').style.display = 'none';
-                initChart();
-            } else { alert("Invalid License Key"); }
+        async function authenticate() {
+            const key = document.getElementById('sk_input').value;
+            // التحقق من قاعدة البيانات
+            const res = await fetch(`${SB_URL}/rest/v1/customers?api_key=eq.${key}`, {
+                headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+            });
+            const data = await res.json();
+
+            if(data.length > 0) {
+                activeClient = data[0];
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('app').style.display = 'flex';
+            } else {
+                alert("Invalid Enterprise Key");
+            }
         }
 
-        function enterpriseScrub(text) {
-            const rules = {
-                EMAIL: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
-                PHONE: /\+?\d{10,15}/g,
-                CREDIT_CARD: /\b(?:\d[ -]*?){13,16}\b/g,
-                NAME_HINT: /(?<=my name is |I am )\w+/gi // بسيط ولكن فعال للعروض
-            };
-            let clean = text; let found = false;
+        function scrub(text) {
+            const rules = { EMAIL: /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi, PHONE: /\+?\d{10,15}/g };
+            let clean = text; let hit = false;
             for(let [type, reg] of Object.entries(rules)) {
                 if(reg.test(clean)) {
-                    clean = clean.replace(reg, `[HIDDEN_${type}]`);
-                    found = true; stats.pii++;
+                    clean = clean.replace(reg, `[REDACTED_${type}]`);
+                    hit = true; stats++;
                 }
             }
-            return { clean, found };
+            return { clean, hit };
         }
 
-        async function handleSend() {
-            const input = document.getElementById('userInput');
-            const box = document.getElementById('messages');
-            if(!input.value) return;
+        async function logToCloud(type) {
+            await fetch(`${SB_URL}/rest/v1/audit_logs`, {
+                method: 'POST',
+                headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customer_id: activeClient.id, pii_type: type, action_taken: 'BLOCKED' })
+            });
+        }
 
-            const original = input.value;
-            const { clean, found } = enterpriseScrub(original);
-            
-            box.innerHTML += `<div class="msg user">${original}</div>`;
-            if(found) {
-                box.innerHTML += `<span class="redacted-tag">🛡️ AI Shield: Sensitive PII Redacted</span>`;
-                document.getElementById('pii_count').innerText = stats.pii;
+        function process() {
+            const inp = document.getElementById('userInput');
+            const chat = document.getElementById('chat');
+            const { clean, hit } = scrub(inp.value);
+
+            chat.innerHTML += `<div style="text-align:right; margin-bottom:10px;"><b>You:</b> ${inp.value}</div>`;
+            if(hit) {
+                chat.innerHTML += `<div class="redacted">🛡️ AI Shield: Sensitive data detected and masked.</div>`;
+                document.getElementById('count').innerText = stats;
+                logToCloud('PII_ALERT');
             }
-
-            // محاكاة الرد لضمان عمل الواجهة (سيتم ربطها بـ Supabase لاحقاً)
-            box.innerHTML += `<div class="msg ai">Analyzing request... (Secure Mode)</div>`;
-            input.value = "";
-            box.scrollTop = box.scrollHeight;
+            
+            chat.innerHTML += `<div style="color: #666;">AI: [Processing secure request...]</div>`;
+            inp.value = "";
+            chat.scrollTop = chat.scrollHeight;
         }
 
-        function downloadReport() {
-            const data = `CLEAN-AI AUDIT REPORT\nGenerated: ${new Date()}\nPII Events: ${stats.pii}\nSecurity Status: Compliant`;
-            const blob = new Blob([data], {type: 'text/plain'});
+        function downloadAudit() {
+            const content = `CLEAN-AI AUDIT\nClient: ${activeClient.name}\nPII Blocked: ${stats}\nStatus: Compliant`;
+            const blob = new Blob([content], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = "Compliance_Audit.txt"; a.click();
-        }
-
-        function initChart() {
-            const ctx = document.getElementById('usageChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: { labels: ['M','T','W','T','F'], datasets: [{ data: [12, 19, 3, 5, 2], borderColor: '#00dfd8', tension: 0.4 }] },
-                options: { plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
-            });
+            a.download = "Audit_Report.txt"; a.click();
         }
     </script>
 </body>
