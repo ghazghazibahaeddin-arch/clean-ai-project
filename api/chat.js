@@ -14,13 +14,24 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        // التعديل هنا: استخدم النموذج الأحدث والمستقر
-        model: "llama3-8b-8192", 
-        messages: [{ role: "user", content: prompt }]
+        // CURRENT SUPPORTED MODELS (Choose one):
+        // 1. "llama-3.3-70b-versatile" (Powerful & Smart)
+        // 2. "llama-3.1-8b-instant" (Extremely Fast)
+        model: "llama-3.3-70b-versatile", 
+        messages: [
+          { role: "system", content: "You are a helpful and concise AI assistant." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.7
       })
     });
 
     const data = await response.json();
+
+    if (data.error) {
+       return res.status(400).json({ error: data.error.message });
+    }
+
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
