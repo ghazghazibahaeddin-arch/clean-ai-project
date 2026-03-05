@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | AI Governance Gateway</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #050505; --card: #111; --primary: #007bff; --text: #eee; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 40px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: var(--card); padding: 25px; border-radius: 16px; border: 1px solid #222; }
+        .stat-label { color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 1.8rem; font-weight: 600; margin-top: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 16px; overflow: hidden; }
+        th { text-align: left; padding: 15px; background: #1a1a1a; color: #888; font-size: 0.8rem; }
+        td { padding: 15px; border-top: 1px solid #222; font-size: 0.9rem; }
+        .shield-badge { background: #064e3b; color: #34d399; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; }
+        .cost-tag { color: #3b82f6; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>AI Governance Dashboard</h1>
+    <button onclick="fetchData()" style="background: var(--primary); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">Refresh Logs</button>
+</div>
+
+<div class="grid">
+    <div class="stat-card">
+        <div class="stat-label">Total API Spend</div>
+        <div id="total-cost" class="stat-value">$0.00</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Privacy Shield Events</div>
+        <div id="total-shields" class="stat-value">0</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Tokens</div>
+        <div id="total-tokens" class="stat-value">0</div>
+    </div>
+</div>
+
+<h3>Recent Security Logs</h3>
+<table id="logs-table">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Input (Masked)</th>
+            <th>Cost</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        </tbody>
+</table>
+
+<script>
+    // 🔗 IMPORTANT: Replace with your actual Supabase keys
+    const SUPABASE_URL = "https://xjjuvagvfaocvszztkgh.supabase.co";
+    const SUPABASE_KEY = "YOUR_ANON_KEY_HERE"; // Use ANON key for client-side fetching
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function fetchData() {
+        const { data, error } = await supabase
+            .from('ai_logs')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) return console.error(error);
+
+        let totalCost = 0;
+        let totalShields = 0;
+        let totalTokens = 0;
+        const tbody = document.querySelector('#logs-table tbody');
+        tbody.innerHTML = '';
+
+        data.forEach(log => {
+            totalCost += log.estimated_cost;
+            if(log.shield_active) totalShields++;
+            totalTokens += log.tokens_used;
+
+            const row = `<tr>
+                <td>${new Date(log.created_at).toLocaleTimeString()}</td>
+                <td>${log.prompt_text.substring(0, 50)}...</td>
+                <td class="cost-tag">$${log.estimated_cost.toFixed(5)}</td>
+                <td>${log.shield_active ? '<span class="shield-badge">🛡️ PII MASKED</span>' : '<span style="color:#555">Clean</span>'}</td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+
+        document.getElementById('total-cost').innerText = `$${totalCost.toFixed(4)}`;
+        document.getElementById('total-shields').innerText = totalShields;
+        document.getElementById('total-tokens').innerText = totalTokens.toLocaleString();
+    }
+
+    fetchData(); // Initial load
+</script>
+</body>
+</html>
+
