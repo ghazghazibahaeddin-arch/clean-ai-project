@@ -1,17 +1,6 @@
 {
   "version": 2,
   "rewrites": [
-    {
-      "source": "/api/chat",
-      "destination": "/api/chat.js"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Content-Type", "value": "application/json" }
-      ]
-    }
+    { "source": "/api/chat", "destination": "/api/chat.js" }
   ]
 }
