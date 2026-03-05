@@ -1,6 +1,19 @@
 {
-  "name": "groq-chat-app",
+  "name": "clean-ai-project",
   "version": "1.0.0",
-  "type": "module"
+  "description": "Secure AI Governance Gateway with Supabase and Groq",
+  "main": "api/chat.js",
+  "scripts": {
+    "start": "node api/chat.js",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.7",
+    "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "author": "",
+  "license": "MIT"
 }
-
