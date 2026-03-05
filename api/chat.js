@@ -1,3 +1,4 @@
+// api/chat.js
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -13,7 +14,8 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "mixtral-8x7b-32768",
+        // التعديل هنا: استخدم النموذج الأحدث والمستقر
+        model: "llama3-8b-8192", 
         messages: [{ role: "user", content: prompt }]
       })
     });
@@ -24,4 +26,3 @@ export default async function handler(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-
