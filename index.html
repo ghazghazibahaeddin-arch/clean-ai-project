@@ -1,202 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI SHIELD | Enterprise Data Governance</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #050505; --card: #0c0c0c; --primary: #0070f3;
-            --accent: #00dfd8; --text: #ffffff; --border: #1a1a1a; --success: #27ae60;
-        }
-        * { box-sizing: border-box; transition: all 0.2s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { margin: 0; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar */
-        .sidebar { width: 280px; background: var(--card); border-right: 1px solid var(--border); padding: 40px 24px; display: flex; flex-direction: column; gap: 10px; }
-        .logo { font-weight: 800; font-size: 1.5rem; color: var(--accent); letter-spacing: -1px; margin-bottom: 30px; }
-        .nav-item { color: #666; padding: 12px; border-radius: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 600; text-decoration: none; }
-        .nav-item.active { background: #151515; color: white; border: 1px solid var(--border); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Shield</title>
 
-        /* Main Content */
-        .main { flex: 1; padding: 40px; display: flex; flex-direction: column; gap: 25px; overflow-y: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Stats */
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .stat-card { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--border); }
-        .stat-label { color: #555; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; }
-        .stat-value { font-size: 2rem; font-weight: 800; margin-top: 10px; }
+<style>
+body{
+font-family:Arial;
+background:#0a0a0a;
+color:white;
+margin:0;
+display:flex;
+flex-direction:column;
+height:100vh;
+}
 
-        /* Chat Interface */
-        .chat-section { background: #080808; border: 1px solid var(--border); border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; flex: 1; }
-        #chatDisplay { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        .msg { max-width: 85%; padding: 16px 20px; border-radius: 18px; font-size: 0.95rem; line-height: 1.6; }
-        .msg.user { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; }
-        .msg.ai { background: #161616; border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
-        
-        .input-area { padding: 25px; background: #0c0c0c; border-top: 1px solid var(--border); display: flex; gap: 15px; }
-        input[type="text"], input[type="password"] { flex: 1; background: #151515; border: 1px solid var(--border); border-radius: 14px; color: white; padding: 18px; outline: none; font-size: 1rem; }
-        button { background: var(--primary); color: white; border: none; padding: 0 35px; border-radius: 14px; cursor: pointer; font-weight: 800; }
+header{
+padding:20px;
+background:#111;
+border-bottom:1px solid #222;
+}
 
-        /* Modal */
-        #setupOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .setup-card { background: var(--card); padding: 50px; border-radius: 30px; border: 1px solid var(--border); width: 480px; text-align: center; }
-        .shield-notice { background: rgba(0, 223, 216, 0.05); color: var(--accent); border: 1px dashed var(--accent); padding: 12px; border-radius: 12px; text-align: center; font-size: 0.8rem; font-weight: 700; margin: 10px 0; }
-    </style>
+#chat{
+flex:1;
+overflow:auto;
+padding:20px;
+}
+
+.msg{
+padding:12px;
+border-radius:10px;
+margin-bottom:10px;
+max-width:70%;
+}
+
+.user{
+background:#2563eb;
+align-self:flex-end;
+}
+
+.ai{
+background:#222;
+}
+
+#inputArea{
+display:flex;
+padding:20px;
+gap:10px;
+background:#111;
+}
+
+input{
+flex:1;
+padding:12px;
+background:#222;
+border:none;
+color:white;
+border-radius:8px;
+}
+
+button{
+background:#2563eb;
+border:none;
+color:white;
+padding:12px 20px;
+border-radius:8px;
+cursor:pointer;
+}
+</style>
 </head>
+
 <body>
 
-    <div id="setupOverlay">
-        <div class="setup-card">
-            <div class="logo" style="font-size: 2rem;">🛡️ AI SHIELD</div>
-            <h2 style="margin: 20px 0 10px;">System Activation</h2>
-            <p style="color: #666; font-size: 0.9rem; margin-bottom: 30px;">Provide your Gemini API Key to initialize the secure gateway.</p>
-            <input type="password" id="gateKey" placeholder="Paste your API Key here..." style="width: 100%; margin-bottom: 20px;">
-            <button onclick="activateSystem()" style="width: 100%; padding: 20px;">INITIALIZE GATEWAY</button>
-        </div>
-    </div>
+<header>
+<h2>🛡 AI Shield Gateway</h2>
+</header>
 
-    <div class="sidebar">
-        <div class="logo">🛡️ AI SHIELD</div>
-        <div class="nav-item active">📊 Dashboard</div>
-        <div class="nav-item" onclick="exportAudit()">🔐 Export Audit Log</div>
-        <div style="margin-top: auto; padding: 20px; background: #080808; border-radius: 18px; border: 1px solid var(--border); text-align: center;">
-            <p style="font-size: 0.65rem; color: #555; font-weight: 700;">CONNECTED TO CLEAN-AI</p>
-        </div>
-    </div>
+<div id="chat"></div>
 
-    <div class="main">
-        <header class="header">
-            <div>
-                <h1 style="margin: 0; font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">Security Governance</h1>
-                <p style="color: #666; font-size: 0.9rem;">Enterprise PII Scrubbing Active.</p>
-            </div>
-            <div style="color: var(--success); font-size: 0.8rem; font-weight: bold;">● SYSTEM LIVE</div>
-        </header>
+<div id="inputArea">
+<input id="prompt" placeholder="Type message..." />
+<button onclick="send()">Send</button>
+</div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">PII Blocked</div>
-                <div class="stat-value" id="piiCount">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Liability Savings</div>
-                <div class="stat-value" id="savingsCount">$0.00</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Security Score</div>
-                <div class="stat-value">100%</div>
-            </div>
-        </div>
+<script>
 
-        <div class="chat-section">
-            <div id="chatDisplay">
-                <div class="msg ai">Shield is active. All outbound requests are intercepted and scrubbed for sensitive data.</div>
-            </div>
-            <div class="input-area">
-                <input type="text" id="userInput" placeholder="Ask anything safely... (e.g., info for test@company.com)">
-                <button onclick="processRequest()">SECURE SEND</button>
-            </div>
-        </div>
-    </div>
+function scrub(text){
 
-    <script>
-        // Supabase Configuration
-        const SB_URL = "https://xjjuvagvfaocvszztkgh.supabase.co";
-        const SB_KEY = "sb_publishable_vhoqtLU78J0jm5vVb5P0Jg_OFMXQ4Fl";
-        let GEMINI_KEY = "";
-        let stats = { pii: 0, savings: 0 };
+const email=/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/g
+const phone=/\+?\d{10,15}/g
 
-        function activateSystem() {
-            const val = document.getElementById('gateKey').value;
-            if(val.length > 10) {
-                GEMINI_KEY = val;
-                document.getElementById('setupOverlay').style.display = 'none';
-            } else {
-                alert("Please enter a valid API Key.");
-            }
-        }
+let clean=text
 
-        function scrub(text) {
-            const rules = {
-                EMAIL: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
-                PHONE: /\+?\d{10,15}/g,
-                CREDIT_CARD: /\b(?:\d[ -]*?){13,16}\b/g
-            };
-            let clean = text;
-            let hit = false;
+clean=clean.replace(email,"[REDACTED_EMAIL]")
+clean=clean.replace(phone,"[REDACTED_PHONE]")
 
-            for(let [type, reg] of Object.entries(rules)) {
-                if(reg.test(clean)) {
-                    clean = clean.replace(reg, `[REDACTED_${type}]`);
-                    hit = true;
-                    stats.pii++;
-                }
-            }
-            return { clean, hit };
-        }
+return clean
+}
 
-        async function logEvent() {
-            try {
-                await fetch(`${SB_URL}/rest/v1/audit_logs`, {
-                    method: 'POST',
-                    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model_used: 'Gemini-1.5', pii_type_detected: 'PII_DATA', action_taken: 'SCRUBBED' })
-                });
-            } catch(e) { console.warn("Supabase Sync Failed - Offline Mode Active."); }
-        }
+function addMsg(text,type){
 
-        async function processRequest() {
-            const input = document.getElementById('userInput');
-            const display = document.getElementById('chatDisplay');
-            if(!input.value) return;
+const div=document.createElement("div")
+div.className="msg "+type
+div.innerText=text
 
-            const original = input.value;
-            display.innerHTML += `<div class="msg user">${original}</div>`;
+document.getElementById("chat").appendChild(div)
+}
 
-            const { clean, hit } = scrub(original);
-            
-            if(hit) {
-                display.innerHTML += `<div class="shield-notice">🛡️ SECURITY ALERT: Sensitive PII detected and redacted.</div>`;
-                logEvent();
-            }
+async function send(){
 
-            // Update UI Metrics
-            stats.savings = (stats.pii * 24.50).toFixed(2);
-            document.getElementById('piiCount').innerText = stats.pii;
-            document.getElementById('savingsCount').innerText = `$${stats.savings}`;
+const input=document.getElementById("prompt")
 
-            input.value = "";
-            display.scrollTop = display.scrollHeight;
+const text=input.value
 
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: clean }] }] })
-                });
-                const data = await res.json();
-                const aiMsg = data.candidates[0].content.parts[0].text;
-                display.innerHTML += `<div class="msg ai">${aiMsg}</div>`;
-            } catch(e) {
-                display.innerHTML += `<div class="msg ai" style="color:red">Gateway Error: Check API Key or Connection.</div>`;
-            }
-            display.scrollTop = display.scrollHeight;
-        }
+if(!text) return
 
-        function exportAudit() {
-            const report = `AI SHIELD AUDIT REPORT\nGenerated: ${new Date().toUTCString()}\nPII Prevented: ${stats.pii}\nLiability Coverage: $${stats.savings}\nStatus: COMPLIANT`;
-            const blob = new Blob([report], {type: 'text/plain'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `Audit_Log_${Date.now()}.txt`;
-            a.click();
-        }
+addMsg(text,"user")
 
-        document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') processRequest(); });
-    </script>
+const clean=scrub(text)
+
+input.value=""
+
+try{
+
+const res=await fetch("/api/chat",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+prompt:clean
+})
+})
+
+const data=await res.json()
+
+addMsg(data.reply,"ai")
+
+}catch(e){
+
+addMsg("Server error","ai")
+
+}
+
+}
+
+</script>
+
 </body>
 </html>
