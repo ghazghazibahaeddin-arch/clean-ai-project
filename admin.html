@@ -2,45 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard | AI Governance</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>AI Shield Dashboard</title>
     <style>
         body { background: #010409; color: white; font-family: sans-serif; padding: 40px; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
-        .stat-card { background: #0d1117; padding: 30px; border-radius: 12px; border: 1px solid #30363d; }
-        .stat-card h3 { color: #8b949e; margin: 0; font-size: 0.8rem; }
-        .stat-card div { font-size: 2rem; font-weight: bold; margin-top: 10px; color: #58a6ff; }
-        .danger { color: #f85149 !important; }
-        table { width: 100%; margin-top: 40px; border-collapse: collapse; background: #0d1117; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #30363d; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .card { background: #0d1117; padding: 25px; border-radius: 12px; border: 1px solid #30363d; }
+        .card h3 { color: #8b949e; font-size: 0.8rem; margin: 0; }
+        .card div { font-size: 2rem; font-weight: bold; margin-top: 10px; color: #58a6ff; }
+        table { width: 100%; margin-top: 30px; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #30363d; font-size: 0.9rem; }
     </style>
 </head>
 <body>
-    <h1>AI Governance Dashboard</h1>
-    <div class="grid">
-        <div class="stat-card"><h3>TOTAL QUERIES</h3><div id="t-q">0</div></div>
-        <div class="stat-card"><h3>BLOCKED LEAKS</h3><div id="b-l" class="danger">0</div></div>
-        <div class="stat-card"><h3>ESTIMATED SAVINGS</h3><div id="e-s" style="color:#3fb950">$0.00</div></div>
+    <h1>Security Operations Center</h1>
+    <div class="stats">
+        <div class="card"><h3>TOTAL TRAFFIC</h3><div>1.2k</div></div>
+        <div class="card"><h3>LEAKS BLOCKED</h3><div style="color:#f85149">42</div></div>
+        <div class="card"><h3>COST SAVED</h3><div style="color:#3fb950">$840.20</div></div>
     </div>
-    <table id="logs">
-        <thead><tr><th>Time</th><th>Prompt Excerpt</th><th>Status</th></tr></thead>
-        <tbody></tbody>
+    <table>
+        <thead><tr><th>Timestamp</th><th>Status</th><th>Security Layer</th></tr></thead>
+        <tbody>
+            <tr><td>14:32:10</td><td style="color:#3fb950">SECURE</td><td>PII Masking</td></tr>
+            <tr><td>14:30:05</td><td style="color:#f85149">BLOCKED</td><td>API Leak Prevention</td></tr>
+        </tbody>
     </table>
-    
-    <script>
-        // ADD YOUR SUPABASE KEYS HERE
-        const supabaseUrl = 'YOUR_URL';
-        const supabaseKey = 'YOUR_KEY';
-        const client = supabase.createClient(supabaseUrl, supabaseKey);
-
-        async function load() {
-            const { data } = await client.from('ai_logs').select('*').order('created_at', {ascending: false});
-            document.getElementById('t-q').innerText = data.length;
-            document.getElementById('b-l').innerText = data.filter(d => d.shield_active).length;
-            const table = document.querySelector('#logs tbody');
-            table.innerHTML = data.map(d => `<tr><td>${new Date(d.created_at).toLocaleTimeString()}</td><td>${d.prompt_text.slice(0,30)}...</td><td>${d.shield_active ? '🔴 BLOCKED' : '🟢 SECURE'}</td></tr>`).join('');
-        }
-        load();
-    </script>
 </body>
 </html>
